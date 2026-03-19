@@ -1,4 +1,4 @@
-package org.example.poc.dto;
+package org.example.poc.dto.User;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;

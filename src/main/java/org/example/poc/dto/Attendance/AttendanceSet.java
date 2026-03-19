@@ -1,4 +1,4 @@
-package org.example.poc.dto;
+package org.example.poc.dto.Attendance;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;

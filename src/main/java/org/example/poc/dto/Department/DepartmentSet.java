@@ -1,4 +1,4 @@
-package org.example.poc.dto;
+package org.example.poc.dto.Department;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
