@@ -9,6 +9,7 @@ import org.example.poc.service.EmployeeService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,16 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Override
     public List<Employee> findAll() {
         return employeeRepository.findAll();
+    }
+
+    @Override
+    public Optional<Employee> findById(Integer id) {
+        return employeeRepository.findById(id);
+    }
+
+    @Override
+    public Employee getOne(Integer id) {
+        return employeeRepository.findById(id).get();
     }
 
     @Override

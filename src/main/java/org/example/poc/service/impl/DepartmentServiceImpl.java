@@ -9,6 +9,7 @@ import org.example.poc.service.DepartmentService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,16 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public List<Department> findAll() {
         return departmentRepository.findAll();
+    }
+
+    @Override
+    public Optional<Department> findById(Integer id) {
+        return departmentRepository.findById(id);
+    }
+
+    @Override
+    public Department getOne(Integer id) {
+        return departmentRepository.findById(id).get();
     }
 
     @Override

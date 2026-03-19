@@ -9,6 +9,7 @@ import org.example.poc.service.AttendanceService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,16 @@ public class AttendanceServiceImpl implements AttendanceService {
     @Override
     public List<Attendance> findAll() {
         return attendanceRepository.findAll();
+    }
+
+    @Override
+    public Optional<Attendance> findById(Integer id) {
+        return attendanceRepository.findById(id);
+    }
+
+    @Override
+    public Attendance getOne(Integer id) {
+        return attendanceRepository.findById(id).get();
     }
 
     @Override

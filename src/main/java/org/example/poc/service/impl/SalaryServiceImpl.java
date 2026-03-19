@@ -9,6 +9,7 @@ import org.example.poc.service.SalaryService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,16 @@ public class SalaryServiceImpl implements SalaryService {
     @Override
     public List<Salary> findAll() {
         return salaryRepository.findAll();
+    }
+
+    @Override
+    public Optional<Salary> findById(Integer id) {
+        return salaryRepository.findById(id);
+    }
+
+    @Override
+    public Salary getOne(Integer id) {
+        return salaryRepository.findById(id).get();
     }
 
     @Override

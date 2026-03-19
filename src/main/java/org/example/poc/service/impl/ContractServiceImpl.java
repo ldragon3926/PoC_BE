@@ -9,6 +9,7 @@ import org.example.poc.service.ContractService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,16 @@ public class ContractServiceImpl implements ContractService {
     @Override
     public List<Contract> findAll() {
         return contractRepository.findAll();
+    }
+
+    @Override
+    public Optional<Contract> findById(Integer id) {
+        return contractRepository.findById(id);
+    }
+
+    @Override
+    public Contract getOne(Integer id) {
+        return contractRepository.findById(id).get();
     }
 
     @Override

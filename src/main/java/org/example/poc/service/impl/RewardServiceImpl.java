@@ -9,6 +9,7 @@ import org.example.poc.service.RewardService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,16 @@ public class RewardServiceImpl implements RewardService {
     @Override
     public List<Reward> findAll() {
         return rewardRepository.findAll();
+    }
+
+    @Override
+    public Optional<Reward> findById(Integer id) {
+        return rewardRepository.findById(id);
+    }
+
+    @Override
+    public Reward getOne(Integer id) {
+        return rewardRepository.findById(id).get();
     }
 
     @Override

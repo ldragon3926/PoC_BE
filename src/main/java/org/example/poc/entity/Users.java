@@ -3,7 +3,6 @@ package org.example.poc.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import javax.management.relation.Role;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,8 +17,8 @@ public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id ;
-    @Column(name = "gmail")
-    private String gmail ;
+    @Column(name = "email")
+    private String email ;
     @Column(name = "username")
     private String username ;
     @Column(name = "password")

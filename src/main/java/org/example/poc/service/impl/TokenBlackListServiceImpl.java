@@ -9,6 +9,7 @@ import org.example.poc.service.TokenBlackListService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,6 +19,16 @@ public class TokenBlackListServiceImpl implements TokenBlackListService {
     @Override
     public List<TokenBlackList> findAll() {
         return tokenBlackListRepository.findAll();
+    }
+
+    @Override
+    public Optional<TokenBlackList> findById(Integer id) {
+        return tokenBlackListRepository.findById(id);
+    }
+
+    @Override
+    public TokenBlackList getOne(Integer id) {
+        return tokenBlackListRepository.findById(id).get();
     }
 
     @Override

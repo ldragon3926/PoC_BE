@@ -15,20 +15,20 @@ import java.util.Set;
 @Setter
 public class UserSet {
     private Integer id;
-    @NotBlank(message = "Không được để gmail trống")
-    private String gmail;
-    @NotBlank(message = "Không được để username trống")
+    @NotBlank(message = "Khong duoc de email trong")
+    private String email;
+    @NotBlank(message = "Khong duoc de username trong")
     private String username;
-    @NotBlank(message = "Không được để password trống")
+    @NotBlank(message = "Khong duoc de password trong")
     private String password;
     private boolean status;
 
-    @NotEmpty(message = "Không được để danh sách vai trò trống")
+    @NotEmpty(message = "Khong duoc de danh sach vai tro trong")
     private Set<Integer> idRoles;
 
     public Users dto(Users user, List<Roles> idRolesfromDB) {
         user.setId(this.getId());
-        user.setGmail(this.getUsername());
+        user.setEmail(this.getEmail());
         user.setUsername(this.getUsername());
         user.setPassword(this.getPassword());
         user.setStatus(isStatus());
