@@ -24,7 +24,7 @@ public class UserSet {
     private boolean status;
 
     @NotEmpty(message = "Không được để danh sách vai trò trống")
-    private Set<Long> idRoles;
+    private Set<Integer> idRoles;
 
     public Users dto(Users user, List<Roles> idRolesfromDB) {
         user.setId(this.getId());

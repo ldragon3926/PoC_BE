@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
@@ -18,32 +19,42 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
 
     @Override
-    public List<Users>  findAll(){
-       return userRepository.findAll();
+    public List<Users> findAll() {
+        return userRepository.findAll();
     }
 
     @Override
-    public Users findByUsername(String username){
+    public Optional<Users> findById(Integer id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
+    public Users findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
     @Override
     @Transactional
-    public Users add(Users users){
-    return userRepository.save(users);
+    public Users add(Users users) {
+        return userRepository.save(users);
     }
 
     @Override
     @Transactional
-    public Users update(Users users, Integer id){
-            Users uFind = userRepository.findById(id).orElseThrow(() -> new NotFoundExeption("Không tìm thấy người dùng với id: "+id));
+    public Users update(Users users, Integer id) {
+        Users uFind = userRepository.findById(id).orElseThrow(() -> new NotFoundExeption("Không tìm thấy người dùng với id: " + id));
         users.setId(uFind.getId());
         return userRepository.save(users);
     }
 
     @Override
     @Transactional
-    public void delete(Integer id){
+    public void delete(Integer id) {
         userRepository.deleteById(id);
+    }
+
+    @Override
+    public Users getOne(Integer id) {
+        return userRepository.findById(id).get();
     }
 }
