@@ -30,7 +30,7 @@ public class PermissionServiceImpl implements PermissionService {
     @Override
     @Transactional
     public Permissions update(Permissions permissions, Integer id){
-        Permissions pFind = permissionRepository.findById(id).orElseThrow(() -> new NotFoundExeption("Không tìm thấy người dùng với id: "+id));
+        Permissions pFind = permissionRepository.findById(id).orElseThrow(() -> new NotFoundExeption("Can not find permission with id: "+id));
         permissions.setId(pFind.getId());
         return permissionRepository.save(permissions);
     }

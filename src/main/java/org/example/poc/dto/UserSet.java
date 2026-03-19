@@ -1,10 +1,12 @@
 package org.example.poc.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.poc.entity.Roles;
 import org.example.poc.entity.Users;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,6 +23,7 @@ public class UserSet {
     private String password;
     private boolean status;
 
+    @NotEmpty(message = "Không được để danh sách vai trò trống")
     private Set<Long> idRoles;
 
     public Users dto(Users user, List<Roles> idRolesfromDB) {
@@ -29,8 +32,8 @@ public class UserSet {
         user.setUsername(this.getUsername());
         user.setPassword(this.getPassword());
         user.setStatus(isStatus());
-        if(idRolesfromDB != null ){
-        user.setRoles(new HashSet<>(idRolesfromDB));
+        if (idRolesfromDB != null) {
+            user.setRoles(new HashSet<>(idRolesfromDB));
         }
         return user;
     }
