@@ -8,16 +8,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "roles")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @Builder
-public class Roles {
+@Table(name = "permissions")
+public class Permissions {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id ;
+    private Integer id;
     @Column(name = "name")
     private String name ;
     @Column(name = "code")
@@ -27,13 +27,7 @@ public class Roles {
     @Column(name = "status")
     private boolean status ;
     @JsonIgnore
-    @ManyToMany(mappedBy = "roles")
-    private Set<Users> users = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(name = "role_permissions",
-    joinColumns = @JoinColumn(name = "role_id"),
-    inverseJoinColumns = @JoinColumn(name = "permission_id"))
-    private Set<Permissions> permissions = new HashSet<>();
+    @ManyToMany(mappedBy = "permissions")
+    private Set<Roles> roles = new HashSet<>();
 
 }
