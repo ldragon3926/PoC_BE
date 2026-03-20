@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.poc.dto.Attendance.AttendanceSet;
 import org.example.poc.entity.Attendance;
+import org.example.poc.entity.Employee;
+import org.example.poc.repository.EmployeeRepository;
 import org.example.poc.response.ResponseUltils;
 import org.example.poc.service.AttendanceService;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AttendanceController {
     private final AttendanceService attendanceService;
+    private final EmployeeRepository employeeRepository;
 
     @GetMapping("/list-all")
     public ResponseEntity<?> listAll() {
@@ -40,7 +43,11 @@ public class AttendanceController {
             String error = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining("; "));
             return ResponseUltils.error("error.attendance.validation", error);
         }
-        Attendance attendance = attendanceSet.dto(new Attendance());
+        Employee employee = employeeRepository.findById(attendanceSet.getEmployeeId()).orElse(null);
+        if (employee == null) {
+            return ResponseUltils.error("error.attendance.employee_not_found", "Employee does not exist");
+        }
+        Attendance attendance = attendanceSet.dto(new Attendance(), employee);
         return ResponseUltils.success(attendanceService.add(attendance), "Create attendance successfully", "VIEW_ATTENDANCE_CREATE");
     }
 
@@ -50,7 +57,11 @@ public class AttendanceController {
             String error = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining("; "));
             return ResponseUltils.error("error.attendance.validation", error);
         }
-        Attendance attendance = attendanceSet.dto(new Attendance());
+        Employee employee = employeeRepository.findById(attendanceSet.getEmployeeId()).orElse(null);
+        if (employee == null) {
+            return ResponseUltils.error("error.attendance.employee_not_found", "Employee does not exist");
+        }
+        Attendance attendance = attendanceSet.dto(new Attendance(), employee);
         return ResponseUltils.success(attendanceService.update(attendance, id), "Update attendance successfully", "VIEW_ATTENDANCE_UPDATE");
     }
 

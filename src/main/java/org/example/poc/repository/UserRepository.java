@@ -15,6 +15,8 @@ public interface UserRepository extends JpaRepository<Users, Integer> {
     @Query("""
             select distinct u
             from Users u
+            left join fetch u.employee e
+            left join fetch e.department
             left join fetch u.roles r
             left join fetch r.permissions
             """)
@@ -23,6 +25,8 @@ public interface UserRepository extends JpaRepository<Users, Integer> {
     @Query("""
             select distinct u
             from Users u
+            left join fetch u.employee e
+            left join fetch e.department
             left join fetch u.roles r
             left join fetch r.permissions
             where u.id = :id
@@ -32,6 +36,8 @@ public interface UserRepository extends JpaRepository<Users, Integer> {
     @Query("""
             select distinct u
             from Users u
+            left join fetch u.employee e
+            left join fetch e.department
             left join fetch u.roles r
             left join fetch r.permissions
             where u.username = :username

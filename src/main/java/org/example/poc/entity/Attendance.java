@@ -27,4 +27,8 @@ public class Attendance {
     @Column(name = "working_hours", precision = 5, scale = 2)
     private BigDecimal workingHours;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
+
 }

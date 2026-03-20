@@ -18,17 +18,18 @@ public class ContractServiceImpl implements ContractService {
 
     @Override
     public List<Contract> findAll() {
-        return contractRepository.findAll();
+        return contractRepository.findAllWithEmployee();
     }
 
     @Override
     public Optional<Contract> findById(Integer id) {
-        return contractRepository.findById(id);
+        return contractRepository.findByIdWithEmployee(id);
     }
 
     @Override
     public Contract getOne(Integer id) {
-        return contractRepository.findById(id).get();
+        return contractRepository.findByIdWithEmployee(id)
+                .orElseThrow(() -> new NotFoundExeption("Can not find contract with id: " + id));
     }
 
     @Override

@@ -27,6 +27,11 @@ public class Users {
     private String password ;
     @Column(name = "status")
     private boolean status ;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
+
     @ManyToMany
     @JoinTable(name = "user_roles",
     joinColumns = @JoinColumn(name = "user_id"),

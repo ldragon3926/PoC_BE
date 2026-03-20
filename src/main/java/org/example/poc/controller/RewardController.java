@@ -44,6 +44,9 @@ public class RewardController {
             return ResponseUltils.error("error.reward.validation", error);
         }
         Employee employee = employeeRepository.findById(rewardSet.getEmployeeId()).orElse(null);
+        if (employee == null) {
+            return ResponseUltils.error("error.reward.employee_not_found", "Employee does not exist");
+        }
         Reward reward = rewardSet.dto(new Reward(), employee);
         return ResponseUltils.success(rewardService.add(reward), "Create reward successfully", "VIEW_REWARD_CREATE");
     }
@@ -55,6 +58,9 @@ public class RewardController {
             return ResponseUltils.error("error.reward.validation", error);
         }
         Employee employee = employeeRepository.findById(rewardSet.getEmployeeId()).orElse(null);
+        if (employee == null) {
+            return ResponseUltils.error("error.reward.employee_not_found", "Employee does not exist");
+        }
         Reward reward = rewardSet.dto(new Reward(), employee);
         return ResponseUltils.success(rewardService.update(reward, id), "Update reward successfully", "VIEW_REWARD_UPDATE");
     }

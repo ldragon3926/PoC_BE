@@ -3,8 +3,10 @@ package org.example.poc.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.poc.dto.User.UserSet;
+import org.example.poc.entity.Employee;
 import org.example.poc.entity.Roles;
 import org.example.poc.entity.Users;
+import org.example.poc.repository.EmployeeRepository;
 import org.example.poc.repository.RoleRepository;
 import org.example.poc.response.ResponseUltils;
 import org.example.poc.service.UserService;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 public class UserControlller {
     private final UserService userService;
     private final RoleRepository roleRepository;
+    private final EmployeeRepository employeeRepository;
 
     @GetMapping("/list-all")
     public ResponseEntity<?> listAll() {
@@ -45,7 +48,11 @@ public class UserControlller {
             return ResponseUltils.error("error.user.validation", error);
         }
         List<Roles> roles = roleRepository.findAllById(userSet.getIdRoles());
-        Users users = userSet.dto(new Users(), roles);
+        Employee employee = userSet.getEmployeeId() == null ? null : employeeRepository.findById(userSet.getEmployeeId()).orElse(null);
+        if (userSet.getEmployeeId() != null && employee == null) {
+            return ResponseUltils.error("error.user.employee_not_found", "Employee does not exist");
+        }
+        Users users = userSet.dto(new Users(), employee, roles);
         return ResponseUltils.success(userService.add(users), "Them moi user thanh cong", "VIEW_USER_CREATE");
     }
 
@@ -56,7 +63,11 @@ public class UserControlller {
             return ResponseUltils.error("error.user.validation", error);
         }
         List<Roles> roles = roleRepository.findAllById(userSet.getIdRoles());
-        Users users = userSet.dto(new Users(), roles);
+        Employee employee = userSet.getEmployeeId() == null ? null : employeeRepository.findById(userSet.getEmployeeId()).orElse(null);
+        if (userSet.getEmployeeId() != null && employee == null) {
+            return ResponseUltils.error("error.user.employee_not_found", "Employee does not exist");
+        }
+        Users users = userSet.dto(new Users(), employee, roles);
         return ResponseUltils.success(userService.update(users, id), "Update user theo id thanh cong", "VIEW_USER_UPDATE");
     }
 

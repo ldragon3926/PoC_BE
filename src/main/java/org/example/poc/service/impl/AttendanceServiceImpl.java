@@ -18,17 +18,18 @@ public class AttendanceServiceImpl implements AttendanceService {
 
     @Override
     public List<Attendance> findAll() {
-        return attendanceRepository.findAll();
+        return attendanceRepository.findAllWithEmployee();
     }
 
     @Override
     public Optional<Attendance> findById(Integer id) {
-        return attendanceRepository.findById(id);
+        return attendanceRepository.findByIdWithEmployee(id);
     }
 
     @Override
     public Attendance getOne(Integer id) {
-        return attendanceRepository.findById(id).get();
+        return attendanceRepository.findByIdWithEmployee(id)
+                .orElseThrow(() -> new NotFoundExeption("Can not find attendance with id: " + id));
     }
 
     @Override

@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.poc.dto.Contract.ContractSet;
 import org.example.poc.entity.Contract;
+import org.example.poc.entity.Employee;
+import org.example.poc.repository.EmployeeRepository;
 import org.example.poc.response.ResponseUltils;
 import org.example.poc.service.ContractService;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ContractController {
     private final ContractService contractService;
+    private final EmployeeRepository employeeRepository;
 
     @GetMapping("/list-all")
     public ResponseEntity<?> listAll() {
@@ -40,7 +43,11 @@ public class ContractController {
             String error = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining("; "));
             return ResponseUltils.error("error.contract.validation", error);
         }
-        Contract contract = contractSet.dto(new Contract());
+        Employee employee = employeeRepository.findById(contractSet.getEmployeeId()).orElse(null);
+        if (employee == null) {
+            return ResponseUltils.error("error.contract.employee_not_found", "Employee does not exist");
+        }
+        Contract contract = contractSet.dto(new Contract(), employee);
         return ResponseUltils.success(contractService.add(contract), "Create contract successfully", "VIEW_CONTRACT_CREATE");
     }
 
@@ -50,7 +57,11 @@ public class ContractController {
             String error = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining("; "));
             return ResponseUltils.error("error.contract.validation", error);
         }
-        Contract contract = contractSet.dto(new Contract());
+        Employee employee = employeeRepository.findById(contractSet.getEmployeeId()).orElse(null);
+        if (employee == null) {
+            return ResponseUltils.error("error.contract.employee_not_found", "Employee does not exist");
+        }
+        Contract contract = contractSet.dto(new Contract(), employee);
         return ResponseUltils.success(contractService.update(contract, id), "Update contract successfully", "VIEW_CONTRACT_UPDATE");
     }
 

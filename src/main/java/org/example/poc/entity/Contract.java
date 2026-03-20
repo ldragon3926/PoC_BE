@@ -28,4 +28,8 @@ public class Contract {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
+    private Employee employee;
+
 }

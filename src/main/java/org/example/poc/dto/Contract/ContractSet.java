@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.poc.entity.Contract;
+import org.example.poc.entity.Employee;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,19 +14,28 @@ import java.time.LocalDate;
 @Setter
 public class ContractSet {
     private Integer id;
-    @NotBlank(message = "Không được để loại hợp đồng trống")
+
+    @NotNull(message = "Khong duoc de nhan vien trong")
+    private Integer employeeId;
+
+    @NotBlank(message = "Khong duoc de loai hop dong trong")
     private String contractType;
-    @NotNull(message = "Không được để lương cơ bản trống")
+
+    @NotNull(message = "Khong duoc de luong co ban trong")
     private BigDecimal baseSalary;
-    @NotNull(message = "Không được để hệ số lương trống")
+
+    @NotNull(message = "Khong duoc de he so luong trong")
     private BigDecimal salaryCoefficient;
-    @NotNull(message = "Không được để ngày bắt đầu trống")
+
+    @NotNull(message = "Khong duoc de ngay bat dau trong")
     private LocalDate startDate;
-    @NotNull(message = "Không được để ngày kết thúc trống")
+
+    @NotNull(message = "Khong duoc de ngay ket thuc trong")
     private LocalDate endDate;
 
-    public Contract dto(Contract contract) {
+    public Contract dto(Contract contract, Employee employee) {
         contract.setId(this.getId());
+        contract.setEmployee(employee);
         contract.setContractType(this.getContractType());
         contract.setBaseSalary(this.getBaseSalary());
         contract.setSalaryCoefficient(this.getSalaryCoefficient());

@@ -44,6 +44,9 @@ public class SalaryController {
             return ResponseUltils.error("error.salary.validation", error);
         }
         Employee employee = employeeRepository.findById(salarySet.getEmployeeId()).orElse(null);
+        if (employee == null) {
+            return ResponseUltils.error("error.salary.employee_not_found", "Employee does not exist");
+        }
         Salary salary = salarySet.dto(new Salary(), employee);
         return ResponseUltils.success(salaryService.add(salary), "Create salary successfully", "VIEW_SALARY_CREATE");
     }
@@ -55,6 +58,9 @@ public class SalaryController {
             return ResponseUltils.error("error.salary.validation", error);
         }
         Employee employee = employeeRepository.findById(salarySet.getEmployeeId()).orElse(null);
+        if (employee == null) {
+            return ResponseUltils.error("error.salary.employee_not_found", "Employee does not exist");
+        }
         Salary salary = salarySet.dto(new Salary(), employee);
         return ResponseUltils.success(salaryService.update(salary, id), "Update salary successfully", "VIEW_SALARY_UPDATE");
     }
