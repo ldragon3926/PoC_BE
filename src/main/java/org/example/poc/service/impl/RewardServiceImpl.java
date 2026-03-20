@@ -18,17 +18,18 @@ public class RewardServiceImpl implements RewardService {
 
     @Override
     public List<Reward> findAll() {
-        return rewardRepository.findAll();
+        return rewardRepository.findAllWithEmployee();
     }
 
     @Override
     public Optional<Reward> findById(Integer id) {
-        return rewardRepository.findById(id);
+        return rewardRepository.findByIdWithEmployee(id);
     }
 
     @Override
     public Reward getOne(Integer id) {
-        return rewardRepository.findById(id).get();
+        return rewardRepository.findByIdWithEmployee(id)
+                .orElseThrow(() -> new NotFoundExeption("Can not find reward with id: " + id));
     }
 
     @Override

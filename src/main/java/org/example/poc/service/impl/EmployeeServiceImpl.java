@@ -18,17 +18,18 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public List<Employee> findAll() {
-        return employeeRepository.findAll();
+        return employeeRepository.findAllWithDepartment();
     }
 
     @Override
     public Optional<Employee> findById(Integer id) {
-        return employeeRepository.findById(id);
+        return employeeRepository.findByIdWithDepartment(id);
     }
 
     @Override
     public Employee getOne(Integer id) {
-        return employeeRepository.findById(id).get();
+        return employeeRepository.findByIdWithDepartment(id)
+                .orElseThrow(() -> new NotFoundExeption("Can not find employee with id: " + id));
     }
 
     @Override

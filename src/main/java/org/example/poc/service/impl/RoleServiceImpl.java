@@ -18,17 +18,18 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public List<Roles> findAll() {
-        return roleRepository.findAll();
+        return roleRepository.findAllWithPermissions();
     }
 
     @Override
     public Optional<Roles> findById(Integer id) {
-        return roleRepository.findById(id);
+        return roleRepository.findByIdWithPermissions(id);
     }
 
     @Override
     public Roles getOne(Integer id) {
-        return roleRepository.findById(id).get();
+        return roleRepository.findByIdWithPermissions(id)
+                .orElseThrow(() -> new NotFoundExeption("Can not find role with id: " + id));
     }
 
     @Override
