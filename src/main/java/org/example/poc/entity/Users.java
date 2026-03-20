@@ -1,5 +1,6 @@
 package org.example.poc.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +22,7 @@ public class Users {
     private String email ;
     @Column(name = "username")
     private String username ;
+    @JsonIgnore
     @Column(name = "password")
     private String password ;
     @Column(name = "status")

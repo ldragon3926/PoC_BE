@@ -7,10 +7,28 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<Users, Integer> {
+    @Query("""
+            select distinct u
+            from Users u
+            left join fetch u.roles r
+            left join fetch r.permissions
+            """)
+    List<Users> findAllWithRoles();
+
+    @Query("""
+            select distinct u
+            from Users u
+            left join fetch u.roles r
+            left join fetch r.permissions
+            where u.id = :id
+            """)
+    Optional<Users> findByIdWithRoles(@Param("id") Integer id);
+
     @Query("""
             select distinct u
             from Users u

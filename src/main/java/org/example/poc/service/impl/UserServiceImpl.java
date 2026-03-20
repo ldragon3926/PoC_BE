@@ -23,12 +23,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<Users> findAll() {
-        return userRepository.findAll();
+        return userRepository.findAllWithRoles();
     }
 
     @Override
     public Optional<Users> findById(Integer id) {
-        return userRepository.findById(id);
+        return userRepository.findByIdWithRoles(id);
     }
 
     @Override
@@ -61,6 +61,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Users getOne(Integer id) {
-        return userRepository.findById(id).orElseThrow(() -> new NotFoundExeption("Khong tim thay nguoi dung voi id: " + id));
+        return userRepository.findByIdWithRoles(id)
+                .orElseThrow(() -> new NotFoundExeption("Khong tim thay nguoi dung voi id: " + id));
     }
 }
