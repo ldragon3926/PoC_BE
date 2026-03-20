@@ -18,17 +18,18 @@ public class SalaryServiceImpl implements SalaryService {
 
     @Override
     public List<Salary> findAll() {
-        return salaryRepository.findAll();
+        return salaryRepository.findAllWithEmployee();
     }
 
     @Override
     public Optional<Salary> findById(Integer id) {
-        return salaryRepository.findById(id);
+        return salaryRepository.findByIdWithEmployee(id);
     }
 
     @Override
     public Salary getOne(Integer id) {
-        return salaryRepository.findById(id).get();
+        return salaryRepository.findByIdWithEmployee(id)
+                .orElseThrow(() -> new NotFoundExeption("Can not find salary with id: " + id));
     }
 
     @Override
