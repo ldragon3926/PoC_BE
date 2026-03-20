@@ -5,18 +5,21 @@ import org.example.poc.entity.Users;
 import org.example.poc.exeption.NotFoundExeption;
 import org.example.poc.repository.UserRepository;
 import org.example.poc.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
-
 @Service
 public class UserServiceImpl implements UserService {
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public List<Users> findAll() {
@@ -36,14 +39,17 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public Users add(Users users) {
+        users.setPassword(passwordEncoder.encode(users.getPassword()));
         return userRepository.save(users);
     }
 
     @Override
     @Transactional
     public Users update(Users users, Integer id) {
-        Users uFind = userRepository.findById(id).orElseThrow(() -> new NotFoundExeption("Không tìm thấy người dùng với id: " + id));
-        users.setId(uFind.getId());
+        Users foundUser = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundExeption("Khong tim thay nguoi dung voi id: " + id));
+        users.setId(foundUser.getId());
+        users.setPassword(passwordEncoder.encode(users.getPassword()));
         return userRepository.save(users);
     }
 
@@ -55,6 +61,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Users getOne(Integer id) {
-        return userRepository.findById(id).get();
+        return userRepository.findById(id).orElseThrow(() -> new NotFoundExeption("Khong tim thay nguoi dung voi id: " + id));
     }
 }
