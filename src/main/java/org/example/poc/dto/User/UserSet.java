@@ -10,6 +10,7 @@ import org.example.poc.entity.Users;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Getter
@@ -24,10 +25,9 @@ public class UserSet {
     @NotBlank(message = "Khong duoc de username trong")
     private String username;
 
-    @NotBlank(message = "Khong duoc de password trong")
     private String password;
 
-    private boolean status;
+    private String status;
 
     @NotEmpty(message = "Khong duoc de danh sach vai tro trong")
     private Set<Integer> idRoles;
@@ -38,10 +38,22 @@ public class UserSet {
         user.setEmail(this.getEmail());
         user.setUsername(this.getUsername());
         user.setPassword(this.getPassword());
-        user.setStatus(isStatus());
+        user.setStatus(isActiveStatus());
         if (rolesFromDb != null) {
             user.setRoles(new HashSet<>(rolesFromDb));
         }
         return user;
+    }
+
+    public boolean hasPassword() {
+        return password != null && !password.trim().isEmpty();
+    }
+
+    public boolean isActiveStatus() {
+        if (status == null) {
+            return false;
+        }
+        String normalized = status.trim().toUpperCase(Locale.ROOT);
+        return "ACTIVE".equals(normalized) || "TRUE".equals(normalized);
     }
 }

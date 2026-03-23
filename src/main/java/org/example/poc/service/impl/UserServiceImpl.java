@@ -49,7 +49,11 @@ public class UserServiceImpl implements UserService {
         Users foundUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundExeption("Khong tim thay nguoi dung voi id: " + id));
         users.setId(foundUser.getId());
-        users.setPassword(passwordEncoder.encode(users.getPassword()));
+        if (users.getPassword() == null || users.getPassword().trim().isEmpty()) {
+            users.setPassword(foundUser.getPassword());
+        } else {
+            users.setPassword(passwordEncoder.encode(users.getPassword()));
+        }
         return userRepository.save(users);
     }
 

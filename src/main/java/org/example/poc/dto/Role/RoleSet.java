@@ -9,6 +9,7 @@ import org.example.poc.entity.Roles;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @Getter
@@ -21,7 +22,7 @@ public class RoleSet {
     private String code;
     @NotBlank(message = "Khong duoc de mo ta vai tro trong")
     private String description;
-    private boolean status;
+    private String status;
     @NotEmpty(message = "Khong duoc de danh sach quyen trong")
     private Set<Integer> idPermissions;
 
@@ -30,10 +31,18 @@ public class RoleSet {
         role.setName(this.getName());
         role.setCode(this.getCode());
         role.setDescription(this.getDescription());
-        role.setStatus(this.isStatus());
+        role.setStatus(this.isActiveStatus());
         if (permissions != null) {
             role.setPermissions(new HashSet<>(permissions));
         }
         return role;
+    }
+
+    public boolean isActiveStatus() {
+        if (status == null) {
+            return false;
+        }
+        String normalized = status.trim().toUpperCase(Locale.ROOT);
+        return "ACTIVE".equals(normalized) || "TRUE".equals(normalized);
     }
 }

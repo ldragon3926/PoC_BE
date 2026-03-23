@@ -47,6 +47,9 @@ public class UserControlller {
             String error = bindingResult.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining("; "));
             return ResponseUltils.error("error.user.validation", error);
         }
+        if (!userSet.hasPassword()) {
+            return ResponseUltils.error("error.user.validation", "Khong duoc de password trong");
+        }
         List<Roles> roles = roleRepository.findAllById(userSet.getIdRoles());
         Employee employee = userSet.getEmployeeId() == null ? null : employeeRepository.findById(userSet.getEmployeeId()).orElse(null);
         if (userSet.getEmployeeId() != null && employee == null) {

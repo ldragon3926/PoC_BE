@@ -1,8 +1,10 @@
 package org.example.poc.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -14,6 +16,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@JsonIgnoreProperties({"employee", "hibernateLazyInitializer", "handler"})
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +31,7 @@ public class Users {
     @Column(name = "status")
     private boolean status ;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
     private Employee employee;
@@ -37,5 +41,19 @@ public class Users {
     joinColumns = @JoinColumn(name = "user_id"),
     inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Roles> roles = new HashSet<>();
+
+    public Integer getEmployeeId() {
+        if (employee == null || !Hibernate.isInitialized(employee)) {
+            return null;
+        }
+        return employee.getId();
+    }
+
+    public String getEmployeeName() {
+        if (employee == null || !Hibernate.isInitialized(employee)) {
+            return null;
+        }
+        return employee.getName();
+    }
 
 }

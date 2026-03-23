@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.example.poc.entity.Permissions;
 
+import java.util.Locale;
+
 @Getter
 @Setter
 public class PermissionSet {
@@ -15,14 +17,22 @@ public class PermissionSet {
     private String code;
     @NotBlank(message = "Không được để mô tả quyền trống")
     private String description;
-    private boolean status;
+    private String status;
 
     public Permissions dto(Permissions permissions) {
         permissions.setId(this.getId());
         permissions.setName(this.getName());
         permissions.setCode(this.getCode());
         permissions.setDescription(this.getDescription());
-        permissions.setStatus(this.isStatus());
+        permissions.setStatus(this.isActiveStatus());
         return permissions;
+    }
+
+    public boolean isActiveStatus() {
+        if (status == null) {
+            return false;
+        }
+        String normalized = status.trim().toUpperCase(Locale.ROOT);
+        return "ACTIVE".equals(normalized) || "TRUE".equals(normalized);
     }
 }
