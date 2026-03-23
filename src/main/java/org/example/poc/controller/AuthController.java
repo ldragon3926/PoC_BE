@@ -1,13 +1,13 @@
 package org.example.poc.controller;
 
 import jakarta.validation.Valid;
+import io.jsonwebtoken.JwtException;
 import org.example.poc.config.CustomUserDetails;
 import org.example.poc.config.Jwt.JwtUtil;
 import org.example.poc.dto.Auth.AuthLoginRequest;
 import org.example.poc.dto.Auth.AuthResponse;
-import org.example.poc.entity.TokenBlackList;
-import org.example.poc.repository.TokenBlackListRepository;
 import org.example.poc.response.ResponseUltils;
+import org.example.poc.service.JwtTokenBlacklistService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.ZoneId;
 import java.util.List;
 
 @RestController
@@ -28,14 +27,14 @@ import java.util.List;
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final TokenBlackListRepository tokenBlackListRepository;
+    private final JwtTokenBlacklistService jwtTokenBlacklistService;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtUtil jwtUtil,
-                          TokenBlackListRepository tokenBlackListRepository) {
+                          JwtTokenBlacklistService jwtTokenBlacklistService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.tokenBlackListRepository = tokenBlackListRepository;
+        this.jwtTokenBlacklistService = jwtTokenBlacklistService;
     }
 
     @PostMapping("/login")
@@ -63,11 +62,12 @@ public class AuthController {
         }
 
         String token = authorizationHeader.substring(7);
-        if (!tokenBlackListRepository.existsByToken(token)) {
-            TokenBlackList tokenBlackList = new TokenBlackList();
-            tokenBlackList.setToken(token);
-            tokenBlackList.setExpiryDate(jwtUtil.extractExpiration(token).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-            tokenBlackListRepository.save(tokenBlackList);
+        try {
+            jwtTokenBlacklistService.blacklist(token, jwtUtil.getRemainingValiditySeconds(token));
+        } catch (JwtException | IllegalArgumentException ex) {
+            return ResponseUltils.error("AUTH_INVALID_TOKEN", "Token is invalid or expired");
+        } catch (IllegalStateException ex) {
+            return ResponseUltils.error("AUTH_BLACKLIST_UNAVAILABLE", "Redis blacklist is unavailable");
         }
 
         return ResponseUltils.success(null, "Logout successfully", "AUTH_LOGOUT_SUCCESS");

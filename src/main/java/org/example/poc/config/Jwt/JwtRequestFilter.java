@@ -5,8 +5,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.poc.repository.TokenBlackListRepository;
 import org.example.poc.config.MyUserDetailService;
+import org.example.poc.service.JwtTokenBlacklistService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,14 +20,14 @@ import java.io.IOException;
 public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final MyUserDetailService myUserDetailService;
-    private final TokenBlackListRepository tokenBlackListRepository;
+    private final JwtTokenBlacklistService jwtTokenBlacklistService;
 
     public JwtRequestFilter(JwtUtil jwtUtil,
                             MyUserDetailService myUserDetailService,
-                            TokenBlackListRepository tokenBlackListRepository) {
+                            JwtTokenBlacklistService jwtTokenBlacklistService) {
         this.jwtUtil = jwtUtil;
         this.myUserDetailService = myUserDetailService;
-        this.tokenBlackListRepository = tokenBlackListRepository;
+        this.jwtTokenBlacklistService = jwtTokenBlacklistService;
     }
 
     @Override
@@ -41,8 +41,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
-        if (tokenBlackListRepository.existsByToken(token)) {
-            filterChain.doFilter(request, response);
+        if (jwtTokenBlacklistService.isBlacklisted(token)) {
+            SecurityContextHolder.clearContext();
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has been logged out");
             return;
         }
 

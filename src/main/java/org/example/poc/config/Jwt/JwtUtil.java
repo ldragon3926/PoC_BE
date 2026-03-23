@@ -54,6 +54,11 @@ public class JwtUtil {
         return parseTokenJWT(token).getBody().getExpiration();
     }
 
+    public long getRemainingValiditySeconds(String token) {
+        long remainingMillis = extractExpiration(token).getTime() - System.currentTimeMillis();
+        return Math.max(remainingMillis / 1000, 0);
+    }
+
     public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
