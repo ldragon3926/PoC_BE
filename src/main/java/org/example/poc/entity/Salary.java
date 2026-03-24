@@ -17,7 +17,9 @@ import java.time.Instant;
 @Setter
 @JsonIgnoreProperties({"employee", "hibernateLazyInitializer", "handler"})
 @Entity
-@Table(name = "salaries")
+@Table(name = "salaries", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_salary_employee_month_year", columnNames = {"employee_id", "month", "year"})
+})
 public class Salary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +42,11 @@ public class Salary {
     private BigDecimal deduction;
     @Column(name = "total_salary", precision = 15, scale = 2)
     private BigDecimal totalSalary;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private SalaryStatus status;
+
     @ColumnDefault("current_timestamp()")
     @Column(name = "created_at")
     private Instant createdAt;

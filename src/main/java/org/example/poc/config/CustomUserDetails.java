@@ -13,14 +13,19 @@ import java.util.Set;
 
 public class CustomUserDetails implements UserDetails {
     private final Integer id;
+    private final Integer employeeId;
+    private final Integer departmentId;
     private final String username;
     private final String password;
     private final boolean enabled;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(Integer id, String username, String password, boolean enabled,
+    public CustomUserDetails(Integer id, Integer employeeId, Integer departmentId,
+                             String username, String password, boolean enabled,
                              Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
+        this.employeeId = employeeId;
+        this.departmentId = departmentId;
         this.username = username;
         this.password = password;
         this.enabled = enabled;
@@ -51,8 +56,16 @@ public class CustomUserDetails implements UserDetails {
             }
         }
 
+        Integer employeeId = user.getEmployeeId();
+        Integer departmentId = null;
+        if (user.getEmployee() != null) {
+            departmentId = user.getEmployee().getDepartmentId();
+        }
+
         return new CustomUserDetails(
                 user.getId(),
+                employeeId,
+                departmentId,
                 user.getUsername(),
                 user.getPassword(),
                 user.isStatus(),
@@ -62,6 +75,14 @@ public class CustomUserDetails implements UserDetails {
 
     public Integer getId() {
         return id;
+    }
+
+    public Integer getEmployeeId() {
+        return employeeId;
+    }
+
+    public Integer getDepartmentId() {
+        return departmentId;
     }
 
     @Override

@@ -22,6 +22,11 @@ public class AttendanceServiceImpl implements AttendanceService {
     }
 
     @Override
+    public List<Attendance> findByEmployeeId(Integer employeeId) {
+        return attendanceRepository.findAllByEmployeeIdWithEmployee(employeeId);
+    }
+
+    @Override
     public Optional<Attendance> findById(Integer id) {
         return attendanceRepository.findByIdWithEmployee(id);
     }

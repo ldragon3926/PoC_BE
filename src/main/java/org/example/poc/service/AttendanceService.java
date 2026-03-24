@@ -9,6 +9,7 @@ import java.util.Optional;
 @Service
 public interface AttendanceService {
     List<Attendance> findAll();
+    List<Attendance> findByEmployeeId(Integer employeeId);
     Optional<Attendance> findById(Integer id);
     Attendance getOne(Integer id);
     Attendance add(Attendance attendance);

@@ -1,5 +1,7 @@
 package org.example.poc.dto.Salary;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,20 +15,32 @@ import java.time.Instant;
 @Setter
 public class SalarySet {
     private Integer id;
-    @NotNull(message = "Không được để nhân viên trống")
+
+    @NotNull(message = "Employee must not be empty")
     private Integer employeeId;
-    @NotNull(message = "Không được để tháng trống")
+
+    @NotNull(message = "Month must not be empty")
+    @Min(value = 1, message = "Month must be between 1 and 12")
+    @Max(value = 12, message = "Month must be between 1 and 12")
     private Integer month;
-    @NotNull(message = "Không được để năm trống")
+
+    @NotNull(message = "Year must not be empty")
+    @Min(value = 2000, message = "Year is invalid")
+    @Max(value = 3000, message = "Year is invalid")
     private Integer year;
-    @NotNull(message = "Không được để lương cơ bản trống")
+
+    @NotNull(message = "Base salary must not be empty")
     private BigDecimal baseSalary;
-    @NotNull(message = "Không được để phụ cấp trống")
+
+    @NotNull(message = "Allowance must not be empty")
     private BigDecimal allowance;
-    @NotNull(message = "Không được để khoản khấu trừ trống")
+
+    @NotNull(message = "Deduction must not be empty")
     private BigDecimal deduction;
-    @NotNull(message = "Không được để tổng lương trống")
+
+    @NotNull(message = "Total salary must not be empty")
     private BigDecimal totalSalary;
+
     private Instant createdAt;
 
     public Salary dto(Salary salary, Employee employee) {

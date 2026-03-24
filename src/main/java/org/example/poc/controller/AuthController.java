@@ -3,9 +3,13 @@ package org.example.poc.controller;
 import jakarta.validation.Valid;
 import io.jsonwebtoken.JwtException;
 import org.example.poc.config.CustomUserDetails;
+import org.example.poc.dto.Auth.AuthProfileResponse;
 import org.example.poc.config.Jwt.JwtUtil;
 import org.example.poc.dto.Auth.AuthLoginRequest;
 import org.example.poc.dto.Auth.AuthResponse;
+import org.example.poc.entity.Roles;
+import org.example.poc.entity.Users;
+import org.example.poc.repository.UserRepository;
 import org.example.poc.response.ResponseUltils;
 import org.example.poc.service.JwtTokenBlacklistService;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -28,13 +33,16 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final JwtTokenBlacklistService jwtTokenBlacklistService;
+    private final UserRepository userRepository;
 
     public AuthController(AuthenticationManager authenticationManager,
                           JwtUtil jwtUtil,
-                          JwtTokenBlacklistService jwtTokenBlacklistService) {
+                          JwtTokenBlacklistService jwtTokenBlacklistService,
+                          UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.jwtTokenBlacklistService = jwtTokenBlacklistService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/login")
@@ -88,5 +96,41 @@ public class AuthController {
                 "Get current user successfully",
                 "AUTH_ME_SUCCESS"
         );
+    }
+
+    @GetMapping("/me-profile")
+    public ResponseEntity<?> meProfile(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return ResponseUltils.error("AUTH_UNAUTHORIZED", "Unauthorized");
+        }
+
+        Optional<Users> userOpt = userRepository.findByIdWithRoles(userDetails.getId());
+        if (userOpt.isEmpty()) {
+            return ResponseUltils.error("error.user.not_found", "User does not exist");
+        }
+
+        Users user = userOpt.get();
+        List<String> authorities = userDetails.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .toList();
+        List<String> roleNames = user.getRoles() == null
+                ? List.of()
+                : user.getRoles().stream()
+                .filter(role -> role != null && role.isStatus())
+                .map(Roles::getCode)
+                .toList();
+
+        AuthProfileResponse payload = new AuthProfileResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getEmployeeId(),
+                user.getEmployeeName(),
+                userDetails.getDepartmentId(),
+                roleNames,
+                authorities
+        );
+
+        return ResponseUltils.success(payload, "Get current user profile successfully", "AUTH_ME_PROFILE_SUCCESS");
     }
 }

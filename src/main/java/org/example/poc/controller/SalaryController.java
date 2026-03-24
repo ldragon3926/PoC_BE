@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.poc.dto.Salary.SalarySet;
 import org.example.poc.entity.Employee;
 import org.example.poc.entity.Salary;
+import org.example.poc.exeption.NotFoundExeption;
 import org.example.poc.repository.EmployeeRepository;
 import org.example.poc.response.ResponseUltils;
 import org.example.poc.service.SalaryService;
@@ -47,8 +48,12 @@ public class SalaryController {
         if (employee == null) {
             return ResponseUltils.error("error.salary.employee_not_found", "Employee does not exist");
         }
-        Salary salary = salarySet.dto(new Salary(), employee);
-        return ResponseUltils.success(salaryService.add(salary), "Create salary successfully", "VIEW_SALARY_CREATE");
+        try {
+            Salary salary = salarySet.dto(new Salary(), employee);
+            return ResponseUltils.success(salaryService.add(salary), "Create salary successfully", "VIEW_SALARY_CREATE");
+        } catch (IllegalArgumentException ex) {
+            return ResponseUltils.error("error.salary.duplicate_period", ex.getMessage());
+        }
     }
 
     @PutMapping("/update/{id}")
@@ -61,8 +66,48 @@ public class SalaryController {
         if (employee == null) {
             return ResponseUltils.error("error.salary.employee_not_found", "Employee does not exist");
         }
-        Salary salary = salarySet.dto(new Salary(), employee);
-        return ResponseUltils.success(salaryService.update(salary, id), "Update salary successfully", "VIEW_SALARY_UPDATE");
+        try {
+            Salary salary = salarySet.dto(new Salary(), employee);
+            return ResponseUltils.success(salaryService.update(salary, id), "Update salary successfully", "VIEW_SALARY_UPDATE");
+        } catch (IllegalStateException ex) {
+            return ResponseUltils.error("error.salary.finalized_locked", ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            return ResponseUltils.error("error.salary.duplicate_period", ex.getMessage());
+        }
+    }
+
+    @PutMapping("/update/finalize")
+    public ResponseEntity<?> finalizeMonth(@RequestParam Integer month, @RequestParam Integer year) {
+        if (month == null || month < 1 || month > 12) {
+            return ResponseUltils.error("error.salary.validation", "Month must be between 1 and 12");
+        }
+        if (year == null || year < 2000 || year > 3000) {
+            return ResponseUltils.error("error.salary.validation", "Year must be between 2000 and 3000");
+        }
+        try {
+            int finalizedRows = salaryService.finalizeMonth(month, year);
+            String message = "Finalize salary period " + month + "/" + year + " successfully. Updated " + finalizedRows + " record(s).";
+            return ResponseUltils.success(finalizedRows, message, "VIEW_SALARY_UPDATE");
+        } catch (IllegalArgumentException ex) {
+            return ResponseUltils.error("error.salary.validation", ex.getMessage());
+        } catch (NotFoundExeption ex) {
+            return ResponseUltils.error("error.salary.period_not_found", ex.getMessage());
+        }
+    }
+
+    @PostMapping("/create/generate")
+    public ResponseEntity<?> generateMonth(@RequestParam Integer month,
+                                           @RequestParam Integer year,
+                                           @RequestParam(defaultValue = "true") Boolean overwriteDraft) {
+        try {
+            int generatedRows = salaryService.generateMonthFromAttendance(month, year, Boolean.TRUE.equals(overwriteDraft));
+            String message = "Generate salary period " + month + "/" + year + " successfully. Changed " + generatedRows + " record(s).";
+            return ResponseUltils.success(generatedRows, message, "VIEW_SALARY_CREATE");
+        } catch (IllegalArgumentException ex) {
+            return ResponseUltils.error("error.salary.validation", ex.getMessage());
+        } catch (NotFoundExeption ex) {
+            return ResponseUltils.error("error.salary.period_not_found", ex.getMessage());
+        }
     }
 
     @DeleteMapping("/delete/{id}")
@@ -70,7 +115,11 @@ public class SalaryController {
         if (salaryService.findById(id).isEmpty()) {
             return ResponseUltils.error("error.salary.not_found", "Salary does not exist");
         }
-        salaryService.delete(id);
-        return ResponseUltils.success(null, "Delete salary successfully", "VIEW_SALARY_DELETE");
+        try {
+            salaryService.delete(id);
+            return ResponseUltils.success(null, "Delete salary successfully", "VIEW_SALARY_DELETE");
+        } catch (IllegalStateException ex) {
+            return ResponseUltils.error("error.salary.finalized_locked", ex.getMessage());
+        }
     }
 }

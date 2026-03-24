@@ -13,5 +13,7 @@ public interface SalaryService {
     Salary getOne(Integer id);
     Salary add(Salary salary);
     Salary update(Salary salary, Integer id);
+    int generateMonthFromAttendance(Integer month, Integer year, boolean overwriteDraft);
+    int finalizeMonth(Integer month, Integer year);
     void delete(Integer id);
 }

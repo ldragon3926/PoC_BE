@@ -104,7 +104,9 @@ CREATE TABLE salaries (
     allowance DECIMAL(15,2),
     deduction DECIMAL(15,2),
     total_salary DECIMAL(15,2),
+    status VARCHAR(20) NOT NULL DEFAULT 'DRAFT',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uk_salary_employee_month_year UNIQUE (employee_id, `month`, `year`),
     CONSTRAINT fk_salaries_employee FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE
 );
 
@@ -242,6 +244,9 @@ FROM roles r
 JOIN permissions p
 WHERE r.code = 'KETOAN'
 AND p.code IN (
+    'VIEW_ATTENDANCE_LIST',
+    'VIEW_ATTENDANCE_DETAIL',
+    'VIEW_ATTENDANCE_CREATE',
     'VIEW_SALARY_LIST',
     'VIEW_SALARY_DETAIL',
     'VIEW_SALARY_CREATE',
@@ -255,6 +260,17 @@ JOIN permissions p
 WHERE r.code = 'USER'
 AND p.code IN (
     'VIEW_USER_DETAIL',
+    'VIEW_ATTENDANCE_LIST',
+    'VIEW_ATTENDANCE_DETAIL',
+    'VIEW_ATTENDANCE_CREATE'
+);
+
+INSERT INTO role_permissions(role_id, permission_id, status)
+SELECT r.id, p.id, 1
+FROM roles r
+JOIN permissions p
+WHERE r.code = 'MANAGER'
+AND p.code IN (
     'VIEW_ATTENDANCE_LIST',
     'VIEW_ATTENDANCE_DETAIL',
     'VIEW_ATTENDANCE_CREATE'

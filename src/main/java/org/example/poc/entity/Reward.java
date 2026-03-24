@@ -39,8 +39,15 @@ public class Reward {
     private String reason;
 
     @ColumnDefault("current_timestamp()")
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+    }
 
     public Integer getEmployeeId() {
         if (employee == null || !Hibernate.isInitialized(employee)) {

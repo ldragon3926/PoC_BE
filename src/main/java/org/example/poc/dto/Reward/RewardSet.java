@@ -27,7 +27,6 @@ public class RewardSet {
         reward.setEmployee(employee);
         reward.setAmount(this.getAmount());
         reward.setReason(this.getReason());
-        reward.setCreatedAt(this.getCreatedAt());
         return reward;
     }
 }
