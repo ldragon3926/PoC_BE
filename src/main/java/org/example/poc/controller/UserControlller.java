@@ -56,7 +56,11 @@ public class UserControlller {
             return ResponseUltils.error("error.user.employee_not_found", "Employee does not exist");
         }
         Users users = userSet.dto(new Users(), employee, roles);
-        return ResponseUltils.success(userService.add(users), "Them moi user thanh cong", "VIEW_USER_CREATE");
+        try {
+            return ResponseUltils.success(userService.add(users), "Them moi user thanh cong", "VIEW_USER_CREATE");
+        } catch (IllegalArgumentException ex) {
+            return ResponseUltils.error("error.user.duplicate", ex.getMessage());
+        }
     }
 
     @PutMapping("/update/{id}")
@@ -71,7 +75,11 @@ public class UserControlller {
             return ResponseUltils.error("error.user.employee_not_found", "Employee does not exist");
         }
         Users users = userSet.dto(new Users(), employee, roles);
-        return ResponseUltils.success(userService.update(users, id), "Update user theo id thanh cong", "VIEW_USER_UPDATE");
+        try {
+            return ResponseUltils.success(userService.update(users, id), "Update user theo id thanh cong", "VIEW_USER_UPDATE");
+        } catch (IllegalArgumentException ex) {
+            return ResponseUltils.error("error.user.duplicate", ex.getMessage());
+        }
     }
 
     @DeleteMapping("/delete/{id}")

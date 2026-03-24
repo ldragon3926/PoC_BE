@@ -22,7 +22,7 @@ public class RequestPermissionMapper {
             return Optional.empty();
         }
 
-        String resource = segments[0].replace('-', '_').toUpperCase(Locale.ROOT);
+            String resource = segments[0].replace('-', '_').toUpperCase(Locale.ROOT);
         String action = segments[1];
 
         if ("list-all".equals(action) && "GET".equalsIgnoreCase(method)) {

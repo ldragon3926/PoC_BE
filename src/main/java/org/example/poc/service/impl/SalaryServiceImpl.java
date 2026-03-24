@@ -38,6 +38,12 @@ public class SalaryServiceImpl implements SalaryService {
     }
 
     @Override
+    public List<Salary> findAllFiltered(String keyword, Integer employeeId, Integer month, Integer year, SalaryStatus status) {
+        String normalizedKeyword = (keyword == null || keyword.trim().isEmpty()) ? null : keyword.trim();
+        return salaryRepository.findAllWithFilters(normalizedKeyword, employeeId, month, year, status);
+    }
+
+    @Override
     public Optional<Salary> findById(Integer id) {
         return salaryRepository.findByIdWithEmployee(id);
     }
@@ -169,6 +175,22 @@ public class SalaryServiceImpl implements SalaryService {
             throw new NotFoundExeption("No salary records found for " + month + "/" + year);
         }
         return salaryRepository.bulkUpdateStatusByPeriod(month, year, SalaryStatus.DRAFT, SalaryStatus.FINALIZED);
+    }
+
+    @Override
+    @Transactional
+    public int payMonth(Integer month, Integer year) {
+        validatePeriod(month, year);
+        long recordsInPeriod = salaryRepository.countByMonthAndYear(month, year);
+        if (recordsInPeriod == 0) {
+            throw new NotFoundExeption("No salary records found for " + month + "/" + year);
+        }
+        return salaryRepository.bulkUpdateStatusByPeriodFromMany(
+                month,
+                year,
+                List.of(SalaryStatus.DRAFT, SalaryStatus.FINALIZED),
+                SalaryStatus.PAID
+        );
     }
 
     @Override

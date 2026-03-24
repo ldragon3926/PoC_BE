@@ -44,6 +44,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employeeFound = employeeRepository.findById(id)
                 .orElseThrow(() -> new NotFoundExeption("Can not find employee with id: " + id));
         employee.setId(employeeFound.getId());
+        employee.setCreatedAt(employeeFound.getCreatedAt());
         return employeeRepository.save(employee);
     }
 

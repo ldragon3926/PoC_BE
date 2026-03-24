@@ -36,7 +36,6 @@ public class EmployeeSet {
         employee.setAddress(this.getAddress());
         employee.setDob(this.getDob());
         employee.setDepartment(department);
-        employee.setCreatedAt(this.getCreatedAt());
         return employee;
     }
 }

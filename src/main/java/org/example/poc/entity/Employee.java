@@ -40,8 +40,15 @@ public class Employee {
     private Department department;
 
     @ColumnDefault("current_timestamp()")
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
+    }
 
     public Integer getDepartmentId() {
         if (department == null || !Hibernate.isInitialized(department)) {

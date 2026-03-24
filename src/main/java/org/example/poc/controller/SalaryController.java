@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.poc.dto.Salary.SalarySet;
 import org.example.poc.entity.Employee;
 import org.example.poc.entity.Salary;
+import org.example.poc.entity.SalaryStatus;
 import org.example.poc.exeption.NotFoundExeption;
 import org.example.poc.repository.EmployeeRepository;
 import org.example.poc.response.ResponseUltils;
@@ -25,8 +26,16 @@ public class SalaryController {
     private final EmployeeRepository employeeRepository;
 
     @GetMapping("/list-all")
-    public ResponseEntity<?> listAll() {
-        return ResponseUltils.success(salaryService.findAll(), "Get salary list successfully", "VIEW_SALARY_LIST");
+    public ResponseEntity<?> listAll(@RequestParam(required = false) String keyword,
+                                     @RequestParam(required = false) Integer employeeId,
+                                     @RequestParam(required = false) Integer month,
+                                     @RequestParam(required = false) Integer year,
+                                     @RequestParam(required = false) SalaryStatus status) {
+        return ResponseUltils.success(
+                salaryService.findAllFiltered(keyword, employeeId, month, year, status),
+                "Get salary list successfully",
+                "VIEW_SALARY_LIST"
+        );
     }
 
     @GetMapping("/detail/{id}")
@@ -88,6 +97,25 @@ public class SalaryController {
             int finalizedRows = salaryService.finalizeMonth(month, year);
             String message = "Finalize salary period " + month + "/" + year + " successfully. Updated " + finalizedRows + " record(s).";
             return ResponseUltils.success(finalizedRows, message, "VIEW_SALARY_UPDATE");
+        } catch (IllegalArgumentException ex) {
+            return ResponseUltils.error("error.salary.validation", ex.getMessage());
+        } catch (NotFoundExeption ex) {
+            return ResponseUltils.error("error.salary.period_not_found", ex.getMessage());
+        }
+    }
+
+    @PutMapping("/update/pay")
+    public ResponseEntity<?> payMonth(@RequestParam Integer month, @RequestParam Integer year) {
+        if (month == null || month < 1 || month > 12) {
+            return ResponseUltils.error("error.salary.validation", "Month must be between 1 and 12");
+        }
+        if (year == null || year < 2000 || year > 3000) {
+            return ResponseUltils.error("error.salary.validation", "Year must be between 2000 and 3000");
+        }
+        try {
+            int paidRows = salaryService.payMonth(month, year);
+            String message = "Mark salary period " + month + "/" + year + " as PAID successfully. Updated " + paidRows + " record(s).";
+            return ResponseUltils.success(paidRows, message, "VIEW_SALARY_UPDATE");
         } catch (IllegalArgumentException ex) {
             return ResponseUltils.error("error.salary.validation", ex.getMessage());
         } catch (NotFoundExeption ex) {

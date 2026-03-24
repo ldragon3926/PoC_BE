@@ -26,6 +26,28 @@ public interface SalaryRepository extends JpaRepository<Salary, Integer> {
             from Salary s
             left join fetch s.employee e
             left join fetch e.department
+            where (:employeeId is null or e.id = :employeeId)
+              and (:month is null or s.month = :month)
+              and (:year is null or s.year = :year)
+              and (:status is null or s.status = :status)
+              and (
+                    :keyword is null
+                    or lower(e.name) like lower(concat('%', :keyword, '%'))
+                    or lower(e.email) like lower(concat('%', :keyword, '%'))
+                  )
+            order by s.year desc, s.month desc, s.id desc
+            """)
+    List<Salary> findAllWithFilters(@Param("keyword") String keyword,
+                                    @Param("employeeId") Integer employeeId,
+                                    @Param("month") Integer month,
+                                    @Param("year") Integer year,
+                                    @Param("status") SalaryStatus status);
+
+    @Query("""
+            select s
+            from Salary s
+            left join fetch s.employee e
+            left join fetch e.department
             where s.id = :id
             """)
     Optional<Salary> findByIdWithEmployee(@Param("id") Integer id);
@@ -68,6 +90,19 @@ public interface SalaryRepository extends JpaRepository<Salary, Integer> {
                                  @Param("year") Integer year,
                                  @Param("fromStatus") SalaryStatus fromStatus,
                                  @Param("toStatus") SalaryStatus toStatus);
+
+    @Modifying
+    @Query("""
+            update Salary s
+            set s.status = :toStatus
+            where s.month = :month
+              and s.year = :year
+              and (s.status in :fromStatuses or s.status is null)
+            """)
+    int bulkUpdateStatusByPeriodFromMany(@Param("month") Integer month,
+                                         @Param("year") Integer year,
+                                         @Param("fromStatuses") List<SalaryStatus> fromStatuses,
+                                         @Param("toStatus") SalaryStatus toStatus);
 
     long countByMonthAndYear(Integer month, Integer year);
 }

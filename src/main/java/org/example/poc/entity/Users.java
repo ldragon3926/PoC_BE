@@ -10,7 +10,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_users_username", columnNames = "username"),
+        @UniqueConstraint(name = "uk_users_email", columnNames = "email"),
+        @UniqueConstraint(name = "uk_users_employee", columnNames = "employee_id")
+})
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
@@ -21,9 +25,9 @@ public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id ;
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email ;
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     private String username ;
     @JsonIgnore
     @Column(name = "password")
@@ -33,7 +37,7 @@ public class Users {
 
     @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
+    @JoinColumn(name = "employee_id", unique = true)
     private Employee employee;
 
     @ManyToMany

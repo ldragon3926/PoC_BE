@@ -39,6 +39,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public Users add(Users users) {
+        validateUniquenessOnCreate(users);
         users.setPassword(passwordEncoder.encode(users.getPassword()));
         return userRepository.save(users);
     }
@@ -48,6 +49,7 @@ public class UserServiceImpl implements UserService {
     public Users update(Users users, Integer id) {
         Users foundUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundExeption("Khong tim thay nguoi dung voi id: " + id));
+        validateUniquenessOnUpdate(users, id);
         users.setId(foundUser.getId());
         if (users.getPassword() == null || users.getPassword().trim().isEmpty()) {
             users.setPassword(foundUser.getPassword());
@@ -67,5 +69,31 @@ public class UserServiceImpl implements UserService {
     public Users getOne(Integer id) {
         return userRepository.findByIdWithRoles(id)
                 .orElseThrow(() -> new NotFoundExeption("Khong tim thay nguoi dung voi id: " + id));
+    }
+
+    private void validateUniquenessOnCreate(Users users) {
+        if (users.getUsername() != null && userRepository.existsByUsernameIgnoreCase(users.getUsername())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        if (users.getEmail() != null && userRepository.existsByEmailIgnoreCase(users.getEmail())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+        Integer employeeId = users.getEmployee() == null ? null : users.getEmployee().getId();
+        if (employeeId != null && userRepository.existsByEmployee_Id(employeeId)) {
+            throw new IllegalArgumentException("Employee already has an account");
+        }
+    }
+
+    private void validateUniquenessOnUpdate(Users users, Integer id) {
+        if (users.getUsername() != null && userRepository.existsUsernameConflictForUpdate(users.getUsername(), id)) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        if (users.getEmail() != null && userRepository.existsEmailConflictForUpdate(users.getEmail(), id)) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+        Integer employeeId = users.getEmployee() == null ? null : users.getEmployee().getId();
+        if (employeeId != null && userRepository.existsEmployeeConflictForUpdate(employeeId, id)) {
+            throw new IllegalArgumentException("Employee already has an account");
+        }
     }
 }
