@@ -2,6 +2,8 @@ package org.example.poc.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.poc.dto.Salary.SalaryGenerateAsyncRequest;
+import org.example.poc.dto.Salary.SalaryJobResponse;
 import org.example.poc.dto.Salary.SalarySet;
 import org.example.poc.entity.Employee;
 import org.example.poc.entity.Salary;
@@ -9,6 +11,7 @@ import org.example.poc.entity.SalaryStatus;
 import org.example.poc.exeption.NotFoundExeption;
 import org.example.poc.repository.EmployeeRepository;
 import org.example.poc.response.ResponseUltils;
+import org.example.poc.service.SalaryJobService;
 import org.example.poc.service.SalaryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -23,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SalaryController {
     private final SalaryService salaryService;
+    private final SalaryJobService salaryJobService;
     private final EmployeeRepository employeeRepository;
 
     @GetMapping("/list-all")
@@ -136,6 +140,46 @@ public class SalaryController {
         } catch (NotFoundExeption ex) {
             return ResponseUltils.error("error.salary.period_not_found", ex.getMessage());
         }
+    }
+
+    @PostMapping("/create/generate/async")
+    public ResponseEntity<?> generateMonthAsync(@RequestBody @Valid SalaryGenerateAsyncRequest request,
+                                                BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String error = bindingResult.getAllErrors().stream()
+                    .map(ObjectError::getDefaultMessage)
+                    .collect(Collectors.joining("; "));
+            return ResponseUltils.error("error.salary.validation", error);
+        }
+        try {
+            SalaryJobResponse data = SalaryJobResponse.from(
+                    salaryJobService.submitGenerateMonthJob(
+                            request.getMonth(),
+                            request.getYear(),
+                            Boolean.TRUE.equals(request.getOverwriteDraft())
+                    )
+            );
+            return ResponseUltils.success(
+                    data,
+                    "Submit salary generate job successfully",
+                    "VIEW_SALARY_CREATE"
+            );
+        } catch (IllegalArgumentException ex) {
+            return ResponseUltils.error("error.salary.validation", ex.getMessage());
+        } catch (IllegalStateException ex) {
+            return ResponseUltils.error("error.salary.kafka_unavailable", ex.getMessage());
+        }
+    }
+
+    @GetMapping("/jobs/{id}")
+    public ResponseEntity<?> getGenerateJobStatus(@PathVariable Long id) {
+        return salaryJobService.findById(id)
+                .<ResponseEntity<?>>map(job -> ResponseUltils.success(
+                        SalaryJobResponse.from(job),
+                        "Get salary job detail successfully",
+                        "VIEW_SALARY_DETAIL"
+                ))
+                .orElseGet(() -> ResponseUltils.error("error.salary.job_not_found", "Salary job does not exist"));
     }
 
     @DeleteMapping("/delete/{id}")

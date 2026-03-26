@@ -132,8 +132,9 @@ public class SalaryServiceImpl implements SalaryService {
                 if (salary.getStatus() == SalaryStatus.FINALIZED || salary.getStatus() == SalaryStatus.PAID) {
                     continue;
                 }
-                // Always recalculate DRAFT/legacy-null salary rows when pressing Generate
-                // so changes in attendance/reward are reflected immediately.
+                if (!overwriteDraft && isDraftStatus(salary.getStatus())) {
+                    continue;
+                }
                 salary.setBaseSalary(attendanceBase);
                 salary.setAllowance(allowance);
                 salary.setDeduction(deduction);
