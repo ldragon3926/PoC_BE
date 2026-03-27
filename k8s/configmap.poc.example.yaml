@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: poc-app-config
+  namespace: default
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mariadb://mariadb:3306/quan_ly_luong"
+  SPRING_DATASOURCE_DRIVER_CLASS_NAME: "org.mariadb.jdbc.Driver"
+  SPRING_JPA_HIBERNATE_DDL_AUTO: "update"
+  SPRING_JPA_OPEN_IN_VIEW: "false"
+  SPRING_JPA_SHOW_SQL: "true"
+  SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
+  SPRING_JPA_PROPERTIES_HIBERNATE_GLOBALLY_QUOTED_IDENTIFIERS: "true"
+
+  SECURITY_JWT_EXPIRATION_MILLIS: "7200000"
+
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  SECURITY_JWT_BLACKLIST_PREFIX: "blacklist:token:"
+
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:9092"
+  KAFKA_CONSUMER_GROUP: "poc-salary-group"
+  APP_KAFKA_TOPIC_SALARY_GENERATE_REQUESTED: "salary.generate.requested"
+
+  APP_SALARY_JOB_CLEANUP_ENABLED: "true"
+  APP_SALARY_JOB_RETENTION_DAYS: "60"
+  APP_SALARY_JOB_CLEANUP_CRON: "0 30 2 * * *"
