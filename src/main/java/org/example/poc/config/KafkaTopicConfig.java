@@ -10,7 +10,17 @@ import org.springframework.kafka.config.TopicBuilder;
 public class KafkaTopicConfig {
     @Bean
     public NewTopic salaryGenerateRequestedTopic(
-            @Value("${app.kafka.topics.salary-generate-requested}") String topicName) {
-        return TopicBuilder.name(topicName).partitions(1).replicas(1).build();
+            @Value("${app.kafka.topics.salary-generate-requested}") String topicName,
+            @Value("${app.kafka.topics.partitions:3}") int partitions,
+            @Value("${app.kafka.topics.replicas:1}") int replicas) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
+    }
+
+    @Bean
+    public NewTopic salaryGenerateRequestedDlqTopic(
+            @Value("${app.kafka.topics.salary-generate-requested-dlq}") String topicName,
+            @Value("${app.kafka.topics.partitions:3}") int partitions,
+            @Value("${app.kafka.topics.replicas:1}") int replicas) {
+        return TopicBuilder.name(topicName).partitions(partitions).replicas(replicas).build();
     }
 }

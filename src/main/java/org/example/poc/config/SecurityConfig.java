@@ -52,6 +52,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/auth/login").permitAll()
+                        .requestMatchers("/hrm/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().access(databaseAuthorizationManager)
                 )

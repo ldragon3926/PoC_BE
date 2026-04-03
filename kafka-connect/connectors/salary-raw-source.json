@@ -1,0 +1,28 @@
+{
+  "name": "salary-raw-source",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSourceConnector",
+    "tasks.max": "1",
+    "connection.url": "jdbc:mysql://host.docker.internal:3306/quan_ly_luong",
+    "connection.user": "root",
+    "connection.password": "123456",
+    "dialect.name": "MySqlDatabaseDialect",
+    "mode": "incrementing",
+    "incrementing.column.name": "attendance_id",
+    "query": "SELECT attendance_id, employee_id, employee_name, employee_email, department_name, username, role_code, permission_code, contract_type, contract_base_salary, salary_coefficient, work_date, working_hours, reward_amount FROM vw_salary_enriched_export",
+    "topic.prefix": "raw_salary_data",
+    "poll.interval.ms": "10000",
+    "batch.max.rows": "500",
+    "numeric.mapping": "best_fit",
+    "validate.non.null": "false",
+    "errors.tolerance": "all",
+    "errors.deadletterqueue.topic.name": "salary.connect.dlq",
+    "errors.deadletterqueue.topic.replication.factor": "1",
+    "errors.deadletterqueue.context.headers.enable": "true",
+    "errors.log.enable": "true",
+    "errors.log.include.messages": "true",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "true"
+  }
+}

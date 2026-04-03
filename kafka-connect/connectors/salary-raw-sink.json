@@ -1,0 +1,24 @@
+{
+  "name": "salary-raw-sink",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "tasks.max": "1",
+    "topics.regex": "raw_salary_data.*",
+    "connection.url": "jdbc:mysql://host.docker.internal:3306/quan_ly_luong",
+    "connection.user": "root",
+    "connection.password": "123456",
+    "dialect.name": "MySqlDatabaseDialect",
+    "insert.mode": "insert",
+    "auto.create": "true",
+    "auto.evolve": "true",
+    "pk.mode": "none",
+    "delete.enabled": "false",
+    "errors.tolerance": "all",
+    "errors.deadletterqueue.topic.name": "salary.connect.sink.dlq",
+    "errors.deadletterqueue.topic.replication.factor": "1",
+    "errors.deadletterqueue.context.headers.enable": "true",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "true"
+  }
+}

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class SalaryJobProducer {
+public class    SalaryJobProducer {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Value("${app.kafka.topics.salary-generate-requested}")

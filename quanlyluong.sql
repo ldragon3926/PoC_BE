@@ -1,6 +1,9 @@
-DROP DATABASE IF EXISTS quan_ly_luong;
-CREATE DATABASE quan_ly_luong;
+-- Full bootstrap for local development after accidental DROP.
+-- Usage:
+--   mariadb -uroot -p123456 < scripts/sql/bootstrap_full_reset.sql
 
+DROP DATABASE IF EXISTS quan_ly_luong;
+CREATE DATABASE quan_ly_luong CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE quan_ly_luong;
 
 CREATE TABLE departments (
@@ -175,7 +178,37 @@ INSERT INTO permissions(name, code, description, status) VALUES
 ('Xem chi tiet salary', 'VIEW_SALARY_DETAIL', 'Xem chi tiet bang luong', 1),
 ('Tao salary', 'VIEW_SALARY_CREATE', 'Tinh luong', 1),
 ('Sua salary', 'VIEW_SALARY_UPDATE', 'Sua bang luong', 1),
-('Xoa salary', 'VIEW_SALARY_DELETE', 'Xoa bang luong', 1);
+('Xoa salary', 'VIEW_SALARY_DELETE', 'Xoa bang luong', 1),
+
+('Xem danh sach department', 'VIEW_DEPARTMENT_LIST', 'Xem danh sach phong ban', 1),
+('Xem chi tiet department', 'VIEW_DEPARTMENT_DETAIL', 'Xem chi tiet phong ban', 1),
+('Tao department', 'VIEW_DEPARTMENT_CREATE', 'Tao phong ban', 1),
+('Sua department', 'VIEW_DEPARTMENT_UPDATE', 'Sua phong ban', 1),
+('Xoa department', 'VIEW_DEPARTMENT_DELETE', 'Xoa phong ban', 1),
+
+('Xem danh sach permission', 'VIEW_PERMISSION_LIST', 'Xem danh sach quyen', 1),
+('Xem chi tiet permission', 'VIEW_PERMISSION_DETAIL', 'Xem chi tiet quyen', 1),
+('Tao permission', 'VIEW_PERMISSION_CREATE', 'Tao quyen', 1),
+('Sua permission', 'VIEW_PERMISSION_UPDATE', 'Sua quyen', 1),
+('Xoa permission', 'VIEW_PERMISSION_DELETE', 'Xoa quyen', 1),
+
+('Xem danh sach role', 'VIEW_ROLE_LIST', 'Xem danh sach role', 1),
+('Xem chi tiet role', 'VIEW_ROLE_DETAIL', 'Xem chi tiet role', 1),
+('Tao role', 'VIEW_ROLE_CREATE', 'Tao role', 1),
+('Sua role', 'VIEW_ROLE_UPDATE', 'Sua role', 1),
+('Xoa role', 'VIEW_ROLE_DELETE', 'Xoa role', 1),
+
+('Xem danh sach contract', 'VIEW_CONTRACT_LIST', 'Xem danh sach hop dong', 1),
+('Xem chi tiet contract', 'VIEW_CONTRACT_DETAIL', 'Xem chi tiet hop dong', 1),
+('Tao contract', 'VIEW_CONTRACT_CREATE', 'Tao hop dong', 1),
+('Sua contract', 'VIEW_CONTRACT_UPDATE', 'Sua hop dong', 1),
+('Xoa contract', 'VIEW_CONTRACT_DELETE', 'Xoa hop dong', 1),
+
+('Xem danh sach token black list', 'VIEW_TOKEN_BLACK_LIST_LIST', 'Xem danh sach token black list', 1),
+('Xem chi tiet token black list', 'VIEW_TOKEN_BLACK_LIST_DETAIL', 'Xem chi tiet token black list', 1),
+('Tao token black list', 'VIEW_TOKEN_BLACK_LIST_CREATE', 'Tao token black list', 1),
+('Sua token black list', 'VIEW_TOKEN_BLACK_LIST_UPDATE', 'Sua token black list', 1),
+('Xoa token black list', 'VIEW_TOKEN_BLACK_LIST_DELETE', 'Xoa token black list', 1);
 
 INSERT INTO user_roles(user_id, role_id, status)
 SELECT u.id, r.id, 1
@@ -297,9 +330,89 @@ INSERT INTO rewards(employee_id, amount, reason) VALUES
 (5, 700000, 'Thuong thang'),
 (6, 300000, 'Thuong nho');
 
-INSERT INTO salaries(employee_id, `month`, `year`, base_salary, allowance, deduction, total_salary) VALUES
-(2, 3, 2026, 10000000, 2000000, 200000, 11800000),
-(3, 3, 2026, 5000000, 1000000, 100000, 5900000),
-(4, 3, 2026, 12000000, 2500000, 300000, 14200000),
-(5, 3, 2026, 9000000, 1500000, 150000, 10350000),
-(6, 3, 2026, 6000000, 800000, 50000, 6750000);
+INSERT INTO salaries(employee_id, `month`, `year`, base_salary, allowance, deduction, total_salary, status) VALUES
+(2, 3, 2026, 10000000, 2000000, 200000, 11800000, 'DRAFT'),
+(3, 3, 2026, 5000000, 1000000, 100000, 5900000, 'DRAFT'),
+(4, 3, 2026, 12000000, 2500000, 300000, 14200000, 'DRAFT'),
+(5, 3, 2026, 9000000, 1500000, 150000, 10350000, 'DRAFT'),
+(6, 3, 2026, 6000000, 800000, 50000, 6750000, 'DRAFT');
+
+CREATE INDEX idx_employees_department_id ON employees(department_id);
+CREATE INDEX idx_users_employee_id ON users(employee_id);
+CREATE INDEX idx_user_roles_user_id ON user_roles(user_id);
+CREATE INDEX idx_user_roles_role_id ON user_roles(role_id);
+CREATE INDEX idx_role_permissions_role_id ON role_permissions(role_id);
+CREATE INDEX idx_role_permissions_permission_id ON role_permissions(permission_id);
+CREATE INDEX idx_attendance_employee_id_work_date ON attendance(employee_id, work_date);
+CREATE INDEX idx_contracts_employee_start_date ON contracts(employee_id, start_date);
+CREATE INDEX idx_rewards_employee_created_at ON rewards(employee_id, created_at);
+
+CREATE OR REPLACE VIEW vw_salary_enriched_export AS
+SELECT
+    a.id AS attendance_id,
+    e.id AS employee_id,
+    e.name AS employee_name,
+    e.email AS employee_email,
+    d.name AS department_name,
+    u.username AS username,
+    r.code AS role_code,
+    p.code AS permission_code,
+    c.contract_type AS contract_type,
+    c.base_salary AS contract_base_salary,
+    c.salary_coefficient AS salary_coefficient,
+    a.work_date AS work_date,
+    a.working_hours AS working_hours,
+    COALESCE(rew.amount, 0) AS reward_amount
+FROM attendance a
+JOIN employees e ON e.id = a.employee_id
+LEFT JOIN departments d ON d.id = e.department_id
+LEFT JOIN users u ON u.employee_id = e.id
+LEFT JOIN user_roles ur ON ur.user_id = u.id
+LEFT JOIN roles r ON r.id = ur.role_id
+LEFT JOIN role_permissions rp ON rp.role_id = r.id
+LEFT JOIN permissions p ON p.id = rp.permission_id
+LEFT JOIN contracts c ON c.employee_id = e.id
+LEFT JOIN rewards rew
+       ON rew.employee_id = e.id
+      AND DATE(rew.created_at) = a.work_date;
+
+DELIMITER //
+CREATE PROCEDURE seed_attendance(IN p_days INT)
+BEGIN
+    DECLARE v_day INT DEFAULT 1;
+    DECLARE v_employee_id INT;
+
+    START TRANSACTION;
+    WHILE v_day <= p_days DO
+        SET v_employee_id = 2;
+        WHILE v_employee_id <= 6 DO
+            INSERT INTO attendance(employee_id, work_date, check_in, check_out, working_hours)
+            VALUES (
+                v_employee_id,
+                DATE_ADD('2026-01-01', INTERVAL (v_day - 1) DAY),
+                '08:00:00',
+                '17:00:00',
+                8.00
+            );
+            SET v_employee_id = v_employee_id + 1;
+        END WHILE;
+        SET v_day = v_day + 1;
+    END WHILE;
+    COMMIT;
+END //
+DELIMITER ;
+
+CREATE DATABASE IF NOT EXISTS hr_test CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE OR REPLACE VIEW hr_test.v_salary_overview AS
+SELECT
+    s.id AS salary_id,
+    s.employee_id,
+    e.name AS employee_name,
+    d.name AS department_name,
+    s.month,
+    s.year,
+    s.total_salary,
+    s.status
+FROM quan_ly_luong.salaries s
+JOIN quan_ly_luong.employees e ON e.id = s.employee_id
+LEFT JOIN quan_ly_luong.departments d ON d.id = e.department_id;
