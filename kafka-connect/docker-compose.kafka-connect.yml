@@ -7,8 +7,10 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://host.docker.internal:9092
+      SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: PLAINTEXT://poc-kafka:29092
     restart: unless-stopped
+    networks:
+      - default
 
   kafka-connect:
     image: confluentinc/cp-kafka-connect:7.6.1
@@ -16,7 +18,7 @@ services:
     ports:
       - "8083:8083"
     environment:
-      CONNECT_BOOTSTRAP_SERVERS: host.docker.internal:9092
+      CONNECT_BOOTSTRAP_SERVERS: poc-kafka:29092
       CONNECT_GROUP_ID: poc-connect-cluster
       CONNECT_CONFIG_STORAGE_TOPIC: _connect-configs
       CONNECT_OFFSET_STORAGE_TOPIC: _connect-offsets
@@ -32,3 +34,10 @@ services:
       CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
       CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
     restart: unless-stopped
+    networks:
+      - default
+
+networks:
+  default:
+    external: true
+    name: poc_default
